@@ -1,0 +1,15 @@
+builders:
+  dart_exporter_initialize:
+    import: "package:dart_exporter/dart_exporter.dart"
+    builder_factories: ["dartExporterInitializeBuilder"]
+    build_extensions: { ".dart": [".exports"] }
+    auto_apply: dependents
+    build_to: cache
+    runs_before: ["dart_exporter|dart_exporter"]
+
+  dart_exporter:
+    import: "package:dart_exporter/dart_exporter.dart"
+    builder_factories: ["dartExporterBuilder"]
+    build_extensions: { "$lib$": ["exports.dart_exporter.dart"] }
+    auto_apply: dependents
+    build_to: source
