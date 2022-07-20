@@ -1,3 +1,9 @@
+## 1.0.3
+
+- Move generated file to ```lib/src```
+- Update document
+
+
 ## 1.0.2
 
 - Downgrade Packages

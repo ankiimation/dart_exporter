@@ -1,6 +1,6 @@
 name: dart_exporter
 description: generate exports with build runner
-version: 1.0.2
+version: 1.0.3
 homepage: https://github.com/ankiimation/dart_exporter
 
 environment:

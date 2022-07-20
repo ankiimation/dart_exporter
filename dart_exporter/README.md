@@ -13,4 +13,5 @@ dart pub run build_runner build
 ```
 
 ## Features and bugs
-You need to DELETE generated file named ```exports.dart_exporter.dart``` before run build_runner to generate updated exports
+When adding/removing @doNotExport annotations (from ```dart_exporter_annotation``` package),
+You need to <b>DELETE</b> generated file named ```src/exports.dart_exporter.dart``` before run build_runner to generate updated exports

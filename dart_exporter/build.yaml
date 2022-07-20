@@ -10,6 +10,6 @@ builders:
   dart_exporter:
     import: "package:dart_exporter/dart_exporter.dart"
     builder_factories: ["dartExporterBuilder"]
-    build_extensions: { "$lib$": ["exports.dart_exporter.dart"] }
+    build_extensions: { "$lib$": ["src/exports.dart_exporter.dart"] }
     auto_apply: dependents
     build_to: source

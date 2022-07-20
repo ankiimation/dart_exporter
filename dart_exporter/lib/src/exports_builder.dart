@@ -6,11 +6,11 @@ import 'package:glob/glob.dart';
 /// export all dart files
 class DartExporterBuilder implements Builder {
   static var packageName = '';
-  static const generatedFileName = 'exports.dart_exporter.dart';
+  static const generatedFilePath = 'src/exports.dart_exporter.dart';
 
   @override
   final Map<String, List<String>> buildExtensions = {
-    r'$lib$': [generatedFileName]
+    r'$lib$': [generatedFilePath]
   };
 
   @override
@@ -19,10 +19,10 @@ class DartExporterBuilder implements Builder {
     final exports = buildStep.findAssets(
         Glob('**/*${DartExporterInitializeBuilder.exportExtension}'));
     final expList = <String>[];
-    final content = ["//! AUTO GENERATE FILE, DONT MODIFY!!"];
+    final content = ['//! AUTO GENERATE FILE, DONT MODIFY!!'];
     await for (final exportLibrary in exports) {
       final exportUri = exportLibrary.changeExtension('.dart').uri;
-      if (exportUri.toString().substring(0, 5) != "asset") {
+      if (exportUri.toString().substring(0, 5) != 'asset') {
         if (exportUri.toString() != 'package:$packageName/$packageName.dart') {
           final expStr = getExportString(exportUri);
           expList.add(expStr);
@@ -34,12 +34,15 @@ class DartExporterBuilder implements Builder {
     content.insert(0, '// $packageName');
     if (content.isNotEmpty) {
       await buildStep.writeAsString(
-          AssetId(buildStep.inputId.package, 'lib/$generatedFileName'),
+          AssetId(
+              buildStep.inputId.package, 'lib/src/exports.dart_exporter.dart'),
           content.join('\n'));
     }
-    print('[DART_EXPORTER] add to your library main file $packageName.dart'
-        '\n'
-        'export \'package:$packageName\/$generatedFileName\';');
+    print(
+      '[DART_EXPORTER] add to your library main file $packageName.dart'
+      '\n'
+      "export '$generatedFilePath';",
+    );
   }
 
   String getExportString(Uri exportUri) {
