@@ -1,5 +1,9 @@
 ## 1.0.3
 
+- add ignored extension options
+
+## 1.0.3
+
 - Move generated file to ```lib/src```
 - Update document
 

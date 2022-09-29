@@ -8,6 +8,15 @@ dev_dependencies:
   dart_exporter: {version}
 ```
 
+## Config
+add export configs to pubspec.yaml
+```yaml
+dart_exporter:
+  ingore_if_path_matched:
+    - .g.dart
+    - .gen.dart
+```
+
 ```
 dart pub run build_runner build
 ```
