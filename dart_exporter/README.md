@@ -15,12 +15,13 @@ dart_exporter:
   ingore_if_path_matched:
     - .g.dart
     - .gen.dart
+  use_export_annotation: false (default is true)
+  //false: export all items, use @DoNotExport() annotation to hide
+  //true: hide all items, use @Export() annotation to show
 ```
 
 ```
 dart pub run build_runner build
 ```
 
-## Features and bugs
-When adding/removing @doNotExport annotations (from ```dart_exporter_annotation``` package),
-You need to <b>DELETE</b> generated file named ```src/exports.dart_exporter.dart``` before run build_runner to generate updated exports
+

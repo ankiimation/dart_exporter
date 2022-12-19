@@ -36,13 +36,23 @@ class DartExporterBuilder implements Builder {
       defaultHide = pubspec.dart_exporter.use_export_annotation;
     } catch (e) {
       ignoredExtensions = [];
-      defaultHide = false;
+      defaultHide = true;
     }
     final exportList = <String>[];
-    final content = ['//! AUTO GENERATE FILE, DONT MODIFY!!'];
+    final content = ['// AUTO GENERATE FILE, DONT MODIFY!!'];
     content.add(
         '// ignored: \n${ignoredExtensions.map((e) => '//$e').join('\n')}');
+
     await for (final exportLibrary in exports) {
+      final inputContent = await buildStep.readAsString(exportLibrary);
+      content.add('// ${exportLibrary.path}: \n//>"${inputContent}"\n\n\n');
+      final inputContentAsJson = jsonDecode(inputContent)
+          .cast<String, dynamic>() as Map<String, dynamic>;
+      final elements = (inputContentAsJson['elements']
+              .cast<Map<String, dynamic>>() as List<Map<String, dynamic>>)
+          .map((e) => DartExportElement.fromMap(e))
+          .toList();
+
       final exportUri = exportLibrary.changeExtension('.dart').uri;
       if (exportUri.toString().substring(0, 5) != 'asset') {
         if (exportUri.toString() != 'package:$packageName/$packageName.dart') {
@@ -50,6 +60,9 @@ class DartExporterBuilder implements Builder {
             exportUri,
             ignoredExtensions: ignoredExtensions,
             defaultHide: defaultHide,
+            forceExportElements:
+                elements.where((element) => element.show).toList(),
+            hiddenElements: elements.where((element) => element.hide).toList(),
           );
           if (expStr.isNotEmpty) {
             exportList.add(expStr);
@@ -66,7 +79,7 @@ class DartExporterBuilder implements Builder {
               buildStep.inputId.package, 'lib/src/exports.dart_exporter.dart'),
           content.join('\n'));
     }
-    print(
+    log.warning(
       '[DART_EXPORTER] add to your library main file $packageName.dart'
       '\n'
       "export '$generatedFilePath';",
@@ -77,10 +90,12 @@ class DartExporterBuilder implements Builder {
     Uri exportUri, {
     List<String> ignoredExtensions = const [],
     required bool defaultHide,
+    required List<DartExportElement> hiddenElements,
+    required List<DartExportElement> forceExportElements,
   }) {
     final hideShowString = defaultHide
-        ? getForceExportClass(exportUri)
-        : getHiddenClass(exportUri);
+        ? getForceExportClass(exportUri, forceExportElements)
+        : getHiddenClass(exportUri, hiddenElements);
     if (hideShowString.isEmpty && defaultHide) {
       return '';
     }
@@ -97,15 +112,12 @@ class DartExporterBuilder implements Builder {
     return expStr;
   }
 
-  String getHiddenClass(Uri exportUri) {
-    final hiddenElements = DartExporterInitializeBuilder.hiddenElements;
+  String getHiddenClass(Uri exportUri, List<DartExportElement> hiddenElements) {
     final hiddenClasses = <String>{};
     for (final hiddenElement in hiddenElements) {
-      if (hiddenElement.source?.uri == exportUri) {
-        final className = hiddenElement.name;
-        if (className != null) {
-          hiddenClasses.add(className);
-        }
+      if (hiddenElement.uri == exportUri.toString()) {
+        final className = hiddenElement.className;
+        hiddenClasses.add(className);
       }
     }
     var result = '';
@@ -116,16 +128,13 @@ class DartExporterBuilder implements Builder {
     return result;
   }
 
-  String getForceExportClass(Uri exportUri) {
-    final forceExportElements =
-        DartExporterInitializeBuilder.forceExportElements;
+  String getForceExportClass(
+      Uri exportUri, List<DartExportElement> forceExportElements) {
     final exportClasses = <String>{};
     for (final exportElement in forceExportElements) {
-      if (exportElement.source?.uri == exportUri) {
-        final className = exportElement.name;
-        if (className != null) {
-          exportClasses.add(className);
-        }
+      if (exportElement.uri == exportUri.toString()) {
+        final className = exportElement.className;
+        exportClasses.add(className);
       }
     }
     var result = '';
