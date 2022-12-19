@@ -29,11 +29,14 @@ class DartExporterBuilder implements Builder {
         Glob('**/*${DartExporterInitializeBuilder.exportExtension}'));
 
     late final List<String> ignoredExtensions;
+    late final bool defaultHide;
     try {
       final pubspec = await loadPubspecConfig(pubspecFile);
       ignoredExtensions = pubspec.dart_exporter.ingore_if_path_matched;
+      defaultHide = pubspec.dart_exporter.use_export_annotation;
     } catch (e) {
       ignoredExtensions = [];
+      defaultHide = false;
     }
     final exportList = <String>[];
     final content = ['//! AUTO GENERATE FILE, DONT MODIFY!!'];
@@ -43,9 +46,14 @@ class DartExporterBuilder implements Builder {
       final exportUri = exportLibrary.changeExtension('.dart').uri;
       if (exportUri.toString().substring(0, 5) != 'asset') {
         if (exportUri.toString() != 'package:$packageName/$packageName.dart') {
-          final expStr =
-              getExportString(exportUri, ignoredExtensions: ignoredExtensions);
-          exportList.add(expStr);
+          final expStr = getExportString(
+            exportUri,
+            ignoredExtensions: ignoredExtensions,
+            defaultHide: defaultHide,
+          );
+          if (expStr.isNotEmpty) {
+            exportList.add(expStr);
+          }
         }
       }
     }
@@ -65,9 +73,20 @@ class DartExporterBuilder implements Builder {
     );
   }
 
-  String getExportString(Uri exportUri,
-      {List<String> ignoredExtensions = const []}) {
-    final expStr = "export '$exportUri'${getHiddenClass(exportUri)};";
+  String getExportString(
+    Uri exportUri, {
+    List<String> ignoredExtensions = const [],
+    required bool defaultHide,
+  }) {
+    final hideShowString = defaultHide
+        ? getForceExportClass(exportUri)
+        : getHiddenClass(exportUri);
+    if (hideShowString.isEmpty && defaultHide) {
+      return '';
+    }
+    final expStr = "export '$exportUri'"
+        '$hideShowString'
+        ';';
     for (final ignoredExtension in ignoredExtensions) {
       if (exportUri.toString().contains(
             RegExp(ignoredExtension, caseSensitive: true),
@@ -93,6 +112,26 @@ class DartExporterBuilder implements Builder {
     if (hiddenClasses.isNotEmpty) {
       result = ' hide ';
       result += hiddenClasses.join(',');
+    }
+    return result;
+  }
+
+  String getForceExportClass(Uri exportUri) {
+    final forceExportElements =
+        DartExporterInitializeBuilder.forceExportElements;
+    final exportClasses = <String>{};
+    for (final exportElement in forceExportElements) {
+      if (exportElement.source?.uri == exportUri) {
+        final className = exportElement.name;
+        if (className != null) {
+          exportClasses.add(className);
+        }
+      }
+    }
+    var result = '';
+    if (exportClasses.isNotEmpty) {
+      result = ' show ';
+      result += exportClasses.join(',');
     }
     return result;
   }
@@ -135,19 +174,25 @@ class Pubspec {
 
 class DartExporter {
   final List<String> ingore_if_path_matched;
+
+  /// reversed mean: do not export anything unless using [@Export()] annotation
+  final bool use_export_annotation;
   DartExporter({
     required this.ingore_if_path_matched,
+    required this.use_export_annotation,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'ingore_if_path_matched': ingore_if_path_matched,
+      'use_export_annotation': use_export_annotation,
     };
   }
 
   factory DartExporter.fromMap(Map<String, dynamic> map) {
     return DartExporter(
       ingore_if_path_matched: List<String>.from(map['ingore_if_path_matched']),
+      use_export_annotation: map['use_export_annotation'] == true,
     );
   }
 

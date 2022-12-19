@@ -10,6 +10,7 @@ import 'package:source_gen/source_gen.dart';
 class DartExporterInitializeBuilder implements Builder {
   static const exportExtension = '.exports';
   static final List<Element> hiddenElements = [];
+  static final List<Element> forceExportElements = [];
   @override
   final buildExtensions = const {
     '.dart': [exportExtension]
@@ -26,19 +27,22 @@ class DartExporterInitializeBuilder implements Builder {
 
     final elements = [libraryElements, ...libraryElements.topLevelElements];
     final doNotExportAnnotation = TypeChecker.fromRuntime(DoNotExport);
+    final exportAnnotation = TypeChecker.fromRuntime(Export);
 
-    final exportElements = <Element>[];
+    final defaultElements = <Element>[];
     for (final element in elements) {
       if (doNotExportAnnotation.hasAnnotationOf(element)) {
         hiddenElements.add(element);
-      } else {
-        exportElements.add(element);
       }
+      if (exportAnnotation.hasAnnotationOf(element)) {
+        forceExportElements.add(element);
+      }
+      defaultElements.add(element);
     }
-    if (exportElements.isNotEmpty) {
+    if (defaultElements.isNotEmpty) {
       await buildStep.writeAsString(
           buildStep.inputId.changeExtension(exportExtension),
-          exportElements.join(','));
+          defaultElements.join(','));
     }
   }
 }

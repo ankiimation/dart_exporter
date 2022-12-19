@@ -1,3 +1,6 @@
+## 2.0.0
+- add ```reverse``` options, and handle ```Export``` annotation
+
 ## 1.0.4
 
 - add ignored extension options

@@ -1,13 +1,13 @@
 name: dart_exporter
 description: generate exports with build runner
-version: 1.0.4
+version: 2.0.0
 homepage: https://github.com/ankiimation/dart_exporter
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
-  dart_exporter_annotation: ^1.0.0
+  dart_exporter_annotation: ^2.0.0
   build_resolvers: ^2.0.4
   build: ^2.1.0
   glob: ^2.0.1

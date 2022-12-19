@@ -16,10 +16,11 @@ dev_dependencies:
     path: /Users/lenguyenkhoa/Documents/GitHub/dart_exporter/dart_exporter/
   build_runner: ^2.1.2
 dependencies:
-  dart_exporter_annotation: ^1.0.0
+  dart_exporter_annotation: ^2.0.0
 
 dart_exporter:
   ingore_if_path_matched:
     - .g.dart
     - .gen.dart
     - khoa.dart
+  use_export_annotation: true
