@@ -1,3 +1,9 @@
+## 3.0.0
+- update pubspecs
+
+## 2.0.2
+- Fix uri error when export 'part'
+
 ## 2.0.1
 - CHANGE: Default is will not export anything!!
 - Update readme

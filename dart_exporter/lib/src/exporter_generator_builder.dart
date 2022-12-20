@@ -52,7 +52,7 @@ class DartExporterInitializeBuilder implements Builder {
               className: e.displayName,
               hide: hide,
               show: show,
-              uri: e.source?.uri.toString(),
+              uri: e.librarySource?.uri.toString(),
             ).toMap();
           },
         ).toList(),

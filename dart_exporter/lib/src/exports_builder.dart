@@ -45,7 +45,7 @@ class DartExporterBuilder implements Builder {
 
     await for (final exportLibrary in exports) {
       final inputContent = await buildStep.readAsString(exportLibrary);
-      content.add('// ${exportLibrary.path}: \n//>"${inputContent}"\n\n\n');
+      // content.add('// ${exportLibrary.path}: \n//>"${inputContent}"\n\n\n');
       final inputContentAsJson = jsonDecode(inputContent)
           .cast<String, dynamic>() as Map<String, dynamic>;
       final elements = (inputContentAsJson['elements']
