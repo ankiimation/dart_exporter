@@ -1,3 +1,6 @@
+## 3.0.1
+- update pubspecs
+
 ## 3.0.0
 - update pubspecs
 
