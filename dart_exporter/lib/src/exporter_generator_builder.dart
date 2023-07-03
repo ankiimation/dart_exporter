@@ -48,11 +48,21 @@ class DartExporterInitializeBuilder implements Builder {
                 throwOnUnresolved: false);
             final show =
                 exportAnnotation.hasAnnotationOf(e, throwOnUnresolved: false);
+            final forceShow = (exportAnnotation
+                    .firstAnnotationOf(
+                      e,
+                      throwOnUnresolved: false,
+                    )
+                    ?.getField('forceExportItems')
+                    ?.toListValue()
+                    ?.map((e) => e.toStringValue()!))?.toList() ??
+                [];
             return DartExportElement(
               className: e.displayName,
               hide: hide,
               show: show,
               uri: e.librarySource?.uri.toString(),
+              forceExportItems: forceShow,
             ).toMap();
           },
         ).toList(),
@@ -71,11 +81,13 @@ class DartExportElement {
   final String? uri;
   final bool hide;
   final bool show;
+  final List<String> forceExportItems;
   DartExportElement({
     required this.className,
     required this.uri,
     required this.hide,
     required this.show,
+    required this.forceExportItems,
   });
 
   Map<String, dynamic> toMap() {
@@ -84,15 +96,17 @@ class DartExportElement {
       'uri': uri,
       'hide': hide,
       'show': show,
+      'forceExportItems': forceExportItems,
     };
   }
 
   factory DartExportElement.fromMap(Map<String, dynamic> map) {
     return DartExportElement(
       className: map['className'] ?? '',
-      uri: map['uri'] ?? '',
+      uri: map['uri'],
       hide: map['hide'] ?? false,
       show: map['show'] ?? false,
+      forceExportItems: List<String>.from(map['forceExportItems']),
     );
   }
 

@@ -129,12 +129,15 @@ class DartExporterBuilder implements Builder {
   }
 
   String getForceExportClass(
-      Uri exportUri, List<DartExportElement> forceExportElements) {
+    Uri exportUri,
+    List<DartExportElement> forceExportElements,
+  ) {
     final exportClasses = <String>{};
     for (final exportElement in forceExportElements) {
       if (exportElement.uri == exportUri.toString()) {
         final className = exportElement.className;
         exportClasses.add(className);
+        exportClasses.addAll(exportElement.forceExportItems);
       }
     }
     var result = '';

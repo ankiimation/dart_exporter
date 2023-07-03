@@ -1,3 +1,7 @@
+## 2.0.3
+- add ```forceExportItems```properties for ```Export``` annotation
+## 2.0.2
+- add ```forceExportClasses```properties for ```Export``` annotation
 ## 2.0.1
 - add ```doNotExport``` & ```export``` annotations
 

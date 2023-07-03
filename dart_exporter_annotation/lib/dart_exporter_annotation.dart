@@ -11,5 +11,8 @@ class DoNotExport {
 }
 
 class Export {
-  const Export();
+  final List<String> forceExportItems;
+  const Export({
+    this.forceExportItems = const [],
+  });
 }
