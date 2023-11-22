@@ -1,3 +1,6 @@
+## 3.0.3
+- change ```use_export_annotation``` default ```false```
+
 ## 3.0.2
 - update dart exporter annotation with ```forceExportItems```
 

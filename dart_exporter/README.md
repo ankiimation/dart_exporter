@@ -15,9 +15,9 @@ dart_exporter:
   ingore_if_path_matched:
     - .g.dart
     - .gen.dart
-  use_export_annotation: false (default is true)
-  //false: export all items, use @DoNotExport() annotation to hide
-  //true: hide all items, use @Export() annotation to show
+  use_export_annotation: true
+  #false (default): export all items, use @DoNotExport() annotation to hide
+  #true: hide all items, use @Export() annotation to show
 ```
 
 ```

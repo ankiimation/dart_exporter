@@ -36,7 +36,7 @@ class DartExporterBuilder implements Builder {
       defaultHide = pubspec.dart_exporter.use_export_annotation;
     } catch (e) {
       ignoredExtensions = [];
-      defaultHide = true;
+      defaultHide = false;
     }
     final exportList = <String>[];
     final content = ['// AUTO GENERATE FILE, DONT MODIFY!!'];
