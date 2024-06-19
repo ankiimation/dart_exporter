@@ -1,3 +1,6 @@
+## 3.0.4
+- support freezed to export $*CopyWith
+
 ## 3.0.3
 - change ```use_export_annotation``` default ```false```
 

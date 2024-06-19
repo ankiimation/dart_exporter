@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:build/build.dart';
-import 'package:dart_exporter/src/exporter_generator_builder.dart';
 import 'package:glob/glob.dart';
 import 'package:yaml/yaml.dart';
+
+import 'package:dart_exporter/src/exporter_generator_builder.dart';
 
 /// the ExportsBuilder will create the file to
 /// export all dart files
@@ -30,13 +31,16 @@ class DartExporterBuilder implements Builder {
 
     late final List<String> ignoredExtensions;
     late final bool defaultHide;
+    late final bool useFreezed;
     try {
       final pubspec = await loadPubspecConfig(pubspecFile);
       ignoredExtensions = pubspec.dart_exporter.ingore_if_path_matched;
       defaultHide = pubspec.dart_exporter.use_export_annotation;
+      useFreezed = pubspec.dart_exporter.use_freezed;
     } catch (e) {
       ignoredExtensions = [];
       defaultHide = false;
+      useFreezed = false;
     }
     final exportList = <String>[];
     final content = ['// AUTO GENERATE FILE, DONT MODIFY!!'];
@@ -60,8 +64,10 @@ class DartExporterBuilder implements Builder {
             exportUri,
             ignoredExtensions: ignoredExtensions,
             defaultHide: defaultHide,
-            forceExportElements:
-                elements.where((element) => element.show).toList(),
+            useFreezed: useFreezed,
+            forceExportElements: [
+              ...elements.where((element) => element.show),
+            ],
             hiddenElements: elements.where((element) => element.hide).toList(),
           );
           if (expStr.isNotEmpty) {
@@ -92,9 +98,10 @@ class DartExporterBuilder implements Builder {
     required bool defaultHide,
     required List<DartExportElement> hiddenElements,
     required List<DartExportElement> forceExportElements,
+    required bool useFreezed,
   }) {
     final hideShowString = defaultHide
-        ? getForceExportClass(exportUri, forceExportElements)
+        ? getForceExportClass(exportUri, forceExportElements, useFreezed)
         : getHiddenClass(exportUri, hiddenElements);
     if (hideShowString.isEmpty && defaultHide) {
       return '';
@@ -131,12 +138,17 @@ class DartExporterBuilder implements Builder {
   String getForceExportClass(
     Uri exportUri,
     List<DartExportElement> forceExportElements,
+    bool useFreezed,
   ) {
     final exportClasses = <String>{};
     for (final exportElement in forceExportElements) {
       if (exportElement.uri == exportUri.toString()) {
         final className = exportElement.className;
         exportClasses.add(className);
+        if (useFreezed && exportElement.isUsingFreezed) {
+          exportClasses.add('\$${className}CopyWith');
+        }
+
         exportClasses.addAll(exportElement.forceExportItems);
       }
     }
@@ -189,15 +201,19 @@ class DartExporter {
 
   /// reversed mean: do not export anything unless using [@Export()] annotation
   final bool use_export_annotation;
+
+  final bool use_freezed;
   DartExporter({
     required this.ingore_if_path_matched,
     required this.use_export_annotation,
+    required this.use_freezed,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'ingore_if_path_matched': ingore_if_path_matched,
       'use_export_annotation': use_export_annotation,
+      'use_freezed': use_freezed,
     };
   }
 
@@ -205,6 +221,7 @@ class DartExporter {
     return DartExporter(
       ingore_if_path_matched: List<String>.from(map['ingore_if_path_matched']),
       use_export_annotation: map['use_export_annotation'] == true,
+      use_freezed: map['use_freezed'] == true,
     );
   }
 

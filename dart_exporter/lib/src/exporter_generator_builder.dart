@@ -3,9 +3,11 @@ import 'dart:convert';
 
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:source_gen/source_gen.dart';
+
 import 'package:dart_exporter/src/exports_builder.dart';
 import 'package:dart_exporter_annotation/dart_exporter_annotation.dart';
-import 'package:source_gen/source_gen.dart';
 
 /// visit all files to remember they path
 class DartExporterInitializeBuilder implements Builder {
@@ -43,11 +45,14 @@ class DartExporterInitializeBuilder implements Builder {
           (e) {
             final doNotExportAnnotation = TypeChecker.fromRuntime(DoNotExport);
             final exportAnnotation = TypeChecker.fromRuntime(Export);
+            final freezedAnnotation = TypeChecker.fromRuntime(Freezed);
 
             final hide = doNotExportAnnotation.hasAnnotationOf(e,
                 throwOnUnresolved: false);
             final show =
                 exportAnnotation.hasAnnotationOf(e, throwOnUnresolved: false);
+            final hasFreezed =
+                freezedAnnotation.hasAnnotationOf(e, throwOnUnresolved: false);
             final forceShow = (exportAnnotation
                     .firstAnnotationOf(
                       e,
@@ -63,6 +68,7 @@ class DartExporterInitializeBuilder implements Builder {
               show: show,
               uri: e.librarySource?.uri.toString(),
               forceExportItems: forceShow,
+              isUsingFreezed: hasFreezed,
             ).toMap();
           },
         ).toList(),
@@ -82,12 +88,14 @@ class DartExportElement {
   final bool hide;
   final bool show;
   final List<String> forceExportItems;
+  final bool isUsingFreezed;
   DartExportElement({
     required this.className,
     required this.uri,
     required this.hide,
     required this.show,
     required this.forceExportItems,
+    required this.isUsingFreezed,
   });
 
   Map<String, dynamic> toMap() {
@@ -97,6 +105,7 @@ class DartExportElement {
       'hide': hide,
       'show': show,
       'forceExportItems': forceExportItems,
+      'isUsingFreezed': isUsingFreezed,
     };
   }
 
@@ -107,6 +116,7 @@ class DartExportElement {
       hide: map['hide'] ?? false,
       show: map['show'] ?? false,
       forceExportItems: List<String>.from(map['forceExportItems']),
+      isUsingFreezed: map['isUsingFreezed'] ?? false,
     );
   }
 
